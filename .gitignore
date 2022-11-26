@@ -3,7 +3,10 @@
 # dependencies
 /node_modules
 /.pnp
+/vendor
+/.ide
 .pnp.js
+
 
 # testing
 /coverage
