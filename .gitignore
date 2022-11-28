@@ -6,7 +6,7 @@
 /vendor
 /.ide
 .pnp.js
-.env
+/.env
 
 
 # testing
