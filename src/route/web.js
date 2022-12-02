@@ -5,7 +5,6 @@ import userController from "../controllers/userController";
 let router = express.Router();
 
 let initWebRoutes = (app) => {
-  // rest api
   router.get("/", homeController.getHomePage);
   router.get("/about", homeController.getAboutPage);
   router.get("/crud", homeController.getCRUD);
