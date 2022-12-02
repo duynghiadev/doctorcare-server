@@ -1,20 +1,20 @@
 import db from "../models/index";
+import user from "../models/user";
 import CRUDService from "../services/CRUDService";
 
 let getHomePage = async (req, res) => {
   try {
     let data = await db.User.findAll();
-    console.log("-----------");
-    console.log(data);
-    console.log("-----------");
-    return res.render("homepage.ejs", { data: JSON.stringify(data) });
-  } catch (error) {
+    return res.render("homepage.ejs", {
+      data: JSON.stringify(data),
+    });
+  } catch (e) {
     console.log(e);
   }
 };
 
 let getAboutPage = (req, res) => {
-  return res.render("./test/about.ejs");
+  return res.render("test/about.ejs");
 };
 
 let getCRUD = (req, res) => {
@@ -23,13 +23,16 @@ let getCRUD = (req, res) => {
 
 let postCRUD = async (req, res) => {
   let message = await CRUDService.createNewUser(req.body);
-  console.log(">>> message: ", message);
+  console.log(message);
   return res.send("post crud from server");
 };
 
 let displayGetCRUD = async (req, res) => {
   let data = await CRUDService.getAllUser();
-  console.log(">>>data: ", data);
+  console.log("-------------------------------------");
+  console.log(data);
+  console.log("-------------------------------------");
+
   return res.render("displayCRUD.ejs", {
     dataTable: data,
   });
@@ -45,7 +48,7 @@ let getEditCRUD = async (req, res) => {
       user: userData,
     });
   } else {
-    return res.send("User Not Found!!!");
+    return res.send("User not found");
   }
 };
 
@@ -62,13 +65,12 @@ let deleteCRUD = async (req, res) => {
   let id = req.query.id;
   if (id) {
     await CRUDService.deleteUserById(id);
-    return res.send("Delete the user success👍");
+    return res.send("delete user succeed");
   } else {
-    return res.send("User not found😖");
+    return res.send("user not found");
   }
 };
 
-// key: value
 module.exports = {
   getHomePage: getHomePage,
   getAboutPage: getAboutPage,
