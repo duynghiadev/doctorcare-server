@@ -1,4 +1,0 @@
-GET https://reqres.in/api/users?page=2
-
-###
-POST http://localhost:8080/api/login
