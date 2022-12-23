@@ -176,6 +176,29 @@ let getDetailDoctorById = (inputId) => {
               as: "positionData",
               attributes: ["valueEn", "valueVi"],
             },
+            {
+              model: db.Doctor_Infor,
+              attributes: {
+                exclude: ["id", "doctorId"],
+              },
+              include: [
+                {
+                  model: db.Allcode,
+                  as: "priceTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "provinceTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "paymentTypeData",
+                  attributes: ["valueEn", "valueVi"],
+                },
+              ],
+            },
           ],
           raw: false,
           nest: true,
@@ -184,6 +207,8 @@ let getDetailDoctorById = (inputId) => {
         if (data && data.image) {
           data.image = new Buffer(data.image, "base64").toString("binary");
         }
+
+        if (!data) data = {};
 
         resolve({
           errCode: 0,
