@@ -9,7 +9,9 @@ let getTopDoctorHome = (limitInput) => {
     try {
       let users = await db.User.findAll({
         limit: limitInput,
-        where: { roleId: "R2" },
+        where: {
+          roleId: "R2",
+        },
         order: [["createdAt", "DESC"]],
         include: [
           {
@@ -41,7 +43,9 @@ let getAllDoctors = () => {
   return new Promise(async (resolve, reject) => {
     try {
       let doctors = await db.User.findAll({
-        where: { roleId: "R2" },
+        where: {
+          roleId: "R2",
+        },
         attributes: {
           exclude: ["password", "image"],
         },
@@ -64,13 +68,20 @@ let saveDetailInforDoctor = (inputData) => {
         !inputData.doctorId ||
         !inputData.contentHTML ||
         !inputData.contentMarkdown ||
-        !inputData.action
+        !inputData.action ||
+        !inputData.selectedPrice ||
+        !inputData.selectedPayment ||
+        !inputData.selectProvince ||
+        !inputData.nameClinic ||
+        !inputData.addressClinic ||
+        !inputData.note
       ) {
         resolve({
           errCode: 1,
-          errMessage: "Missing parameter",
+          errMessage: "Missing parameters",
         });
       } else {
+        // upsert to markdown
         if (inputData.action === "CREATE") {
           await db.Markdown.create({
             contentHTML: inputData.contentHTML,
@@ -80,7 +91,9 @@ let saveDetailInforDoctor = (inputData) => {
           });
         } else if (inputData.action === "EDIT") {
           let doctorMarkdown = await db.Markdown.findOne({
-            where: { doctorId: inputData.doctorId },
+            where: {
+              doctorId: inputData.doctorId,
+            },
             raw: false,
           });
 
@@ -92,6 +105,38 @@ let saveDetailInforDoctor = (inputData) => {
 
             await doctorMarkdown.save();
           }
+        }
+
+        // upsert Doctor_Infor table
+        let doctorInfor = await db.Doctor_Infor.findOne({
+          where: {
+            doctorId: inputData.doctorId,
+          },
+          raw: false,
+        });
+
+        if (doctorInfor) {
+          // update
+          doctorInfor.doctorId = inputData.doctorId;
+          doctorInfor.priceId = inputData.selectedPrice;
+          doctorInfor.provinceId = inputData.selectProvince;
+          doctorInfor.paymentId = inputData.selectedPayment;
+          doctorInfor.nameClinic = inputData.nameClinic;
+          doctorInfor.addressClinic = inputData.addressClinic;
+          doctorInfor.note = inputData.note;
+
+          await doctorInfor.save();
+        } else {
+          // create
+          await db.Doctor_Infor.create({
+            doctorId: inputData.doctorId,
+            priceId: inputData.selectedPrice,
+            provinceId: inputData.selectProvince,
+            paymentId: inputData.selectedPayment,
+            nameClinic: inputData.nameClinic,
+            addressClinic: inputData.addressClinic,
+            note: inputData.note,
+          });
         }
 
         resolve({
@@ -170,7 +215,10 @@ let bulkCreateSchedule = (data) => {
 
         // get all existing data
         let existing = await db.Schedule.findAll({
-          where: { doctorId: data.doctorId, date: data.formatedDate },
+          where: {
+            doctorId: data.doctorId,
+            date: data.formatedDate,
+          },
           attributes: ["timeType", "date", "doctorId", "maxNumber"],
           raw: true,
         });
